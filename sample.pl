@@ -3,8 +3,7 @@
 use strict;
 use warnings;
 
-use Promises qw/ collect deferred /;
-use AnyEvent;
+use Future;
 use Path::Tiny;
 
 package Pulp::Folio {
@@ -35,7 +34,9 @@ package Pulp::Folio {
 
     sub write {
         my $self = shift;
-        path($self->filename)->spew($self->content);
+        my $p = path($self->filename);
+        $p->parent->mkpath;
+        $p->spew($self->content);
     }
 
 }
@@ -43,20 +44,16 @@ package Pulp::Folio {
 sub press_run {
     my @sequence = @_;
 
-    my @promises;
+    my @futures;
 
-    my $cv = AnyEvent->condvar;
-    
     while( my $s = shift @sequence ) {
-        @promises = $s->(@promises);
+        @futures = $s->(@futures);
     }
 
-    collect(@promises)->then(sub{
-        warn "all done\n";
-            $cv->send("yay");
-    }, sub { warn "ooops" });
-
-    print $cv->recv;
+    Future->needs_all( @futures )->on_ready(
+        sub{ warn "all done\n"; }, 
+        sub { warn "ooops" }
+    );
 
 }
 
@@ -64,62 +61,62 @@ sub src {
     my $glob = shift;
 
     return sub {
-        my @folios = @_;
+        my @futures = @_;
 
         my @files = glob $glob;
 
         for my $f ( @files ) {
             warn "creating folio for $f\n";
-            my $d = deferred;
-            $d->resolve( Pulp::Folio->new(
-                        original_filename => $f
-            ));
-            push @folios, $d->promise;
+
+            push @futures, my $fut = Future->new;
+
+            $fut->done( Pulp::Folio->new( original_filename => $f) );
         }
 
-        return @folios;
+        return @futures;
     }
 }
 
 sub invert {
 
     return sub {
-        my @folios = @_;
+        my @futures = @_;
 
-        my @promises;
+        my @futures_out;
 
-        for my $f ( @folios ) {
-            my $d = deferred;
-            $f->then(sub{
-                my $folio = shift;
+        for my $f ( @futures ) {
+            push @futures_out, $f->then( sub{
+                my $f = Future->new;
+                my $folio = shift or return $f->done;
+                warn "reversing";
                 $folio->content( scalar reverse $folio->content );
-                $d->resolve($folio);
+                $f->done($folio);
             });
-            push @promises, $d->promise;
         }
 
-        return @promises;
-
+        return @futures_out;
     }
 }
 
 sub concat {
     return sub {
-        my @folios = @_;
+        my @futures = @_;
 
-        my $d = deferred;
+        Future->needs_all( @futures )->then(sub{
+            my @folios;
 
-        collect( @folios )->then(sub{
-            @_ = map { @$_ } @_;
-            warn @_;
             warn "concat all the folios together\n";
-            $d->resolve( Pulp::Folio->new(
+
+            my $f = Future->new;
+
+            $f->done( Pulp::Folio->new(
                 filename => 'all',
                 content => join '', map { $_->content } @_
             ));
+
+            return $f;
         });
 
-        $d->promise;
     }
 }
 
@@ -127,22 +124,28 @@ sub dest {
     my $prefix = shift;
 
     return sub {
-        my @p_in = @_;
+        my @futures = @_;
 
-        for ( @p_in ) {
+        return map { 
             $_->then(sub{
-                my $folio = shift;
+            
+                my $f = Future->new;
 
-                sleep 5;
+                my $folio = shift or return $f->done;
 
-                $folio->filename( $prefix . $folio->filename );
-                warn "writing ", $folio->filename;
-                $folio->write;
-            });
-        }
+                my $new =
+                    Pulp::Folio->new( filename => $folio->filename,
+                    content => $folio->content );
 
-        return @p_in;
+                $new->filename( $prefix . $folio->filename );
+                warn "writing ", $new->filename;
+                $new->write;
 
+                $f->done();
+
+                return $f;
+            })
+        } @futures;
     }
 }
 
