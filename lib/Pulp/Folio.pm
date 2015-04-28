@@ -4,6 +4,7 @@ package Pulp::Folio {
 
     has 'original_filename' => (
         is => 'ro',
+        predicate => 'has_original_filename',
     );
 
     has "content" => (
@@ -12,6 +13,8 @@ package Pulp::Folio {
         lazy => 1,
         default => sub {
             my $self = shift;
+
+            return '' unless $self->has_original_filename;
 
             path($self->original_filename)->slurp;
         },

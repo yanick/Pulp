@@ -1,0 +1,5 @@
+#!/usr/bin/env perl
+
+use Pulp::Command;
+
+Pulp::Command->new_with_options->run;

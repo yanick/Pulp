@@ -1,4 +1,4 @@
-package Pulp::Action::Invert;
+package Pulp::Step::Invert;
 
 use 5.10.0;
 
@@ -6,7 +6,7 @@ use strict;
 use warnings;
 
 use Moose;
-with 'Pulp::Role::Action::Edit';
+with 'Pulp::Role::Step::Edit';
 
 Moose::Exporter->setup_import_methods(
     as_is => [ 'invert' ]

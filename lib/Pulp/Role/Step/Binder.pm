@@ -1,10 +1,10 @@
-package Pulp::Role::Action::Coalesce;
+package Pulp::Role::Step::Binder;
 
 use strict;
 use warnings;
 
 use Moose::Role;
-with 'Pulp::Role::Action';
+with 'Pulp::Role::Step';
 
 requires 'coalesce';
 
