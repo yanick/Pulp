@@ -15,25 +15,32 @@ Moose::Exporter->setup_import_methods(
     as_is => [ 'pulp_rename' ]
 );
 
-has [ qw/ from to / ] => (
+has transform => (
     is => 'ro',
     required => 1,
 );
 
 sub pulp_rename {
-    return __PACKAGE__->new( from => $_[0], to => $_[1] );
+    my $transform = shift;
+    unless( ref $transform ) {
+        $transform = $transform =~ m#/$# 
+            ? sub { $_ = $transform . $_ }
+            : sub { $_ = $transform      }
+            ;
+    }
+    return __PACKAGE__->new( transform => $transform, @_ );
 }
 
 
 sub edit {
     my( $self, $folio ) = @_;
 
-    my $re = $self->from;
-    my $new_name = $folio->filename =~ s/$re/$self->to/er;
+    local $_ = $folio->filename;
+    $self->transform->();
 
-    log_info { "renaming " . $folio->filename . ' to ' . $new_name  };
+    log_info { "renaming " . $folio->filename . ' to ' . $_  };
 
-    $folio->filename( $new_name );
+    $folio->filename($_);
 
     return $folio;
 }
