@@ -15,25 +15,26 @@ set_logger( Log::Dispatchouli->new({
  
 log_debug { 'program started' };
 
-use Moose;
+use Moose::Role;
 
-use Moose::Exporter;
+#use Moose::Exporter;
 use Moose::Util qw/ apply_all_roles /;
 
-use Pulp::Role::ClassProofs;
+with 'Pulp::Role::ClassProofs';
+
+
 
 Moose::Exporter->setup_import_methods(
     as_is => [ 'proof' ],
-    also => 'Moose',
 );
 
-sub init_meta {
-    shift;
-    my $meta = Moose->init_meta( @_ );
-    $meta->superclasses( 'Pulp' );
-    apply_all_roles( $meta, 'Pulp::Role::ClassProofs' );
-    return $meta;
-}
+#sub init_meta {
+#    shift;
+#    my $meta = Moose->init_meta( @_ );
+#    $meta->superclasses( 'Pulp' );
+#    apply_all_roles( $meta, 'Pulp::Role::ClassProofs' );
+#    return $meta;
+#}
 
 has 'proofs' => (
     is => 'ro',
@@ -52,8 +53,6 @@ has 'proofs' => (
 );
 
 my %commands;
-
-use parent 'Exporter';
 
 sub proof {
     # we can be called in 2 ways: as the pre-build step,

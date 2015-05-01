@@ -23,9 +23,10 @@ has transform => (
 sub pulp_rename {
     my $transform = shift;
     unless( ref $transform ) {
-        $transform = $transform =~ m#/$# 
-            ? sub { $_ = $transform . $_ }
-            : sub { $_ = $transform      }
+        my $path = $transform;
+        $transform = $path =~ m#/$# 
+            ? sub { $_ = $path . $_ }
+            : sub { $_ = $path      }
             ;
     }
     return __PACKAGE__->new( transform => $transform, @_ );
