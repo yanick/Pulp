@@ -1,4 +1,4 @@
-package Pulp::Step::Src;
+package Pulp::Action::Src;
 
 use strict;
 use warnings;
@@ -12,17 +12,20 @@ use Log::Contextual qw( :log :dlog );
 use Path::Tiny;
 use List::AllUtils qw/ uniq /;
 
-# TODO this should be auto-generated 
-sub src {
-    my $args;
-    $args = pop @_ if @_ and ref $_[-1] eq 'HASH';
+sub BUILDARGS {
+    my( $class, @args) = @_;
 
-    return __PACKAGE__->new( sources => [ @_ ], %$args );
+    if( @args and ref $args[-1] eq 'HASH' ) {
+        my $options = pop @args;
+        $options->{sources} = \@args;
+        @args = %$options;
+    }
+    else { 
+        @args = ( 'sources', [ @args ] );
+    }
+
+    return { @args }
 }
-Moose::Exporter->setup_import_methods(
-    as_is => [ 'src' ]
-);
-
 
 has sources => (
     is => 'ro',
@@ -70,7 +73,7 @@ sub insert {
     return map { Pulp::Folio->new(
         original_filename => $files{$_},
         filename => $_,
-    )} uniq @selected;
+    )} log_info { join ' ', "collected: ", @_ } uniq @selected;
 }
 
 sub path_to_regex {
@@ -103,7 +106,7 @@ sub find_file_for {
     return;
 }
 
-with 'Pulp::Role::Step::Typist';
+with 'Pulp::Role::Action::Typist';
 
 1;
 

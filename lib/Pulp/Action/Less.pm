@@ -1,4 +1,4 @@
-package Pulp::Step::Less;
+package Pulp::Action::Less;
 
 use 5.10.0;
 
@@ -9,13 +9,9 @@ use Moose;
 use CSS::LESS;
 use PerlX::Maybe;
 
-with 'Pulp::Role::Step::Editor';
+with 'Pulp::Role::Action::Editor';
 
-use Log::Contextual qw( :log :dlog set_logger );
-
-Moose::Exporter->setup_import_methods(
-    as_is => [ 'less' ]
-);
+use Log::Contextual qw( :log :dlog );
 
 has "include_paths" => (
     is => 'ro',
@@ -31,11 +27,6 @@ has "engine" => (
         );
     },
 );
-
-sub less {
-    return __PACKAGE__->new( @_ );
-}
-
 
 sub edit {
     my( $self, $folio ) = @_;

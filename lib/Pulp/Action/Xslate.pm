@@ -1,4 +1,4 @@
-package Pulp::Step::Xslate;
+package Pulp::Action::Xslate;
 
 use 5.10.0;
 
@@ -9,7 +9,7 @@ use Moose;
 use Text::Xslate;
 use PerlX::Maybe;
 
-with 'Pulp::Role::Step::Editor';
+with 'Pulp::Role::Action::Editor';
 
 use Log::Contextual qw( :log :dlog set_logger );
 

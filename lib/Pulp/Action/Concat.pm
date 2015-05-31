@@ -1,4 +1,4 @@
-package Pulp::Step::Concat;
+package Pulp::Action::Concat;
 
 use 5.10.0;
 
@@ -6,7 +6,7 @@ use strict;
 use warnings;
 
 use Moose;
-with 'Pulp::Role::Step::Coalesce';
+with 'Pulp::Role::Action::Binder';
 
 Moose::Exporter->setup_import_methods(
     as_is => [ 'concat' ]

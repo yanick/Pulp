@@ -1,10 +1,10 @@
-package Pulp::Role::Step::Typist;
+package Pulp::Role::Action::Typist;
 
 use strict;
 use warnings;
 
 use Moose::Role;
-with 'Pulp::Role::Step';
+with 'Pulp::Role::Action';
 
 use Log::Contextual qw( :log :dlog );
 

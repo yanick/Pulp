@@ -1,4 +1,4 @@
-package Pulp::Step::Dest;
+package Pulp::Action::Dest;
 
 use strict;
 use warnings;
@@ -12,18 +12,17 @@ use Pulp::Folio;
 
 use Path::Tiny;
 
-Moose::Exporter->setup_import_methods(
-    as_is => [ 'dest' ]
-);
-
-# TODO this should be auto-generated 
-sub dest {
-    return __PACKAGE__->new( 'dest_dir', @_);
-}
-
 has dest_dir => (
     is => 'ro',
 );
+
+sub BUILDARGS {
+    my( $class, @args ) = @_;
+
+    @args = ( dest_dir => @args ) if @args == 1;
+
+    return { @args };
+}
 
 sub publish {
     my( $self, $folio ) = @_;
@@ -32,7 +31,7 @@ sub publish {
     log_info { "writing " . $folio->filename };
 }
 
-with 'Pulp::Role::Step::Publisher';
+with 'Pulp::Role::Action::Publisher';
 
 1;
 

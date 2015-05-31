@@ -1,4 +1,4 @@
-package Pulp::Step::If;
+package Pulp::Action::If;
 
 use 5.10.0;
 
@@ -8,7 +8,7 @@ use warnings;
 use Moose;
 use PerlX::Maybe;
 
-with 'Pulp::Role::Step::Editor';
+with 'Pulp::Role::Action::Editor';
 
 use Log::Contextual qw( :log :dlog set_logger );
 

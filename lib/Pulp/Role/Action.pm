@@ -1,4 +1,4 @@
-package Pulp::Role::Step;
+package Pulp::Role::Action;
 
 use 5.10.0;
 

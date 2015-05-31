@@ -15,26 +15,24 @@ set_logger( Log::Dispatchouli->new({
  
 log_debug { 'program started' };
 
-use Moose::Role;
+use Moose;
 
-#use Moose::Exporter;
+use Moose::Exporter;
 use Moose::Util qw/ apply_all_roles /;
 
-with 'Pulp::Role::ClassProofs';
-
-
+#with 'Pulp::Role::ClassProofs';
 
 Moose::Exporter->setup_import_methods(
     as_is => [ 'proof' ],
 );
 
-#sub init_meta {
-#    shift;
-#    my $meta = Moose->init_meta( @_ );
-#    $meta->superclasses( 'Pulp' );
-#    apply_all_roles( $meta, 'Pulp::Role::ClassProofs' );
-#    return $meta;
-#}
+sub init_meta {
+    shift;
+    my $meta = Moose->init_meta( @_ );
+    $meta->superclasses( 'Pulp' );
+    apply_all_roles( $meta, 'Pulp::Role::ClassProofs' );
+    return $meta;
+}
 
 has 'proofs' => (
     is => 'ro',

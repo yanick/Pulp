@@ -1,4 +1,4 @@
-package Pulp::Role::Step::Publisher;
+package Pulp::Role::Action::Publisher;
 
 use 5.10.0;
 
@@ -10,7 +10,7 @@ use Log::Contextual qw( :log :dlog );
 
 use Moose::Role;
 
-with 'Pulp::Role::Step';
+with 'Pulp::Role::Action';
 
 requires 'publish';
 

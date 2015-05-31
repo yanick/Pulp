@@ -1,10 +1,10 @@
-package Pulp::Role::Step::Editor;
+package Pulp::Role::Action::Editor;
 
 use strict;
 use warnings;
 
 use Moose::Role;
-with 'Pulp::Role::Step';
+with 'Pulp::Role::Action';
 
 requires 'edit';
 
