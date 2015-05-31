@@ -94,11 +94,12 @@ sub typeset {
         return $self->typeset( $folios, $next->($self), @chain );
     }
 
+    use DDP;
     return $self->typeset( [ $next->press(@$folios) ] => @chain );
 }
 
 sub press {
-    my( $self, $name, @folios ) = @_;
+    my( $self, $name, @futures ) = @_;
 
     my $steps = $self->proof($name);
 
@@ -106,11 +107,15 @@ sub press {
 
     local $Pulp::OnThePress = $self;
 
-    @folios = $self->typeset(\@folios, @$steps);
+    my $final = Future->needs_all(
+        $self->typeset(\@futures, @$steps)
+    );
+
+    $final->get;
 
     log_info { "$name is off the press" };
 
-    return @folios;
+    return $final;
 }
 
 1;

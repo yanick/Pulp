@@ -8,6 +8,8 @@ use warnings;
 
 use Log::Contextual qw( :log :dlog );
 
+use Future;
+
 use Moose::Role;
 
 with 'Pulp::Role::Action';
@@ -15,11 +17,22 @@ with 'Pulp::Role::Action';
 requires 'publish';
 
 sub press {
-    my( $self, @folios ) = @_;
+    my( $self, @futures ) = @_;
 
-    $self->publish($_->copy) for @folios;
+    my @writing = map {
+        my $fut = $_;
+        $fut->transform( done => sub{
+            my @args = @_;
+            for my $f ( @args ) {
+                my $copy = $f->copy;
+                $self->publish($copy);
+            }
+            return;
+        });
+    } @futures;
 
-    return @folios;
+
+    return @futures, Future->needs_all(@writing);
 }
 
 1;

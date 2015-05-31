@@ -33,6 +33,8 @@ sub edit {
 
     log_info { "Less'ing " . $folio->filename  };
 
+    sleep 5 if $folio->filename =~ /a/;
+
     $folio->content( join '', $self->engine->compile( $folio->content ) );
     $folio->filename( $folio->filename =~ s/\.less/\.css/r );
 
