@@ -98,6 +98,8 @@ sub typeset {
     return $self->typeset( [ $next->press(@$folios) ] => @chain );
 }
 
+use Pulp::Queue;
+
 sub press {
     my( $self, $name, @futures ) = @_;
 
@@ -107,9 +109,10 @@ sub press {
 
     local $Pulp::OnThePress = $self;
 
-    my $final = Future->needs_all(
-        $self->typeset(\@futures, @$steps)
-    );
+        my @all = $self->typeset(\@futures, @$steps);
+    my $final = Future->needs_all( @all);
+
+    Pulp::Queue->run;
 
     $final->get;
 
