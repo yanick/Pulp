@@ -21,11 +21,14 @@ sub press {
             my @folios = @_;
             my $next = Future->new;
 
-            Pulp::Queue::add_job( $next => sub {
-                map { $self->edit($_->copy) } @folios;
-            } );
+            my @nexts = map {
+                my $f = Future->new;
+                Pulp::Queue::add_job( $f => 
+                    $self, 'edit', $_ );
+                $f;
+            } @folios;
 
-            return $next;
+            return Future->needs_all(@nexts);
         });
     } @futures;
 
