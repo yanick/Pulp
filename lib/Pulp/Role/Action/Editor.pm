@@ -22,10 +22,8 @@ sub press {
             my $next = Future->new;
 
             my @nexts = map {
-                my $f = Future->new;
-                Pulp::Queue::add_job( $f => 
-                    $self, 'edit', $_ );
-                $f;
+                my $f = $_;
+                Pulp::Queue::add_job( sub{ $self->edit($f) } )
             } @folios;
 
             return Future->needs_all(@nexts);
