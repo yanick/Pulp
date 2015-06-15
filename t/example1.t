@@ -1,27 +1,17 @@
-package Example {
-
-use strict;
-use warnings;
-
-use Pulp;
-
-use Pulp::Actions 'Src';
-
-proof main => pulp_src( 'corpus/basic/*.html' )
-
-}
-
 use Test::More;
+
+use lib 't/lib';
 
 plan tests => 1;
 
-my $pulp = Example->new;
+use Example1;
+
+my $pulp = Example1->new;
 
 my @folios = $pulp->press('main');
-
            
 pass 'pulp pressed';
 
 is scalar(@folios), 1, "one folio";
 
-is $folios[0]->filename => 'corpus/basic/a.html', 'filename is correct';
+is $folios[0]->filename => 't/corpus/basic/a.html', 'filename is correct';

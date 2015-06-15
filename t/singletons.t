@@ -6,19 +6,17 @@ use Test::More tests => 3;
 package Foo {
     use Pulp;
 
-    use Pulp::Step::Src;
-    use Pulp::Step::Dest;
+    use Pulp::Actions qw/ Src Dest /;
 
-    proof foo => src('a') => dest('b');
+    proof foo => pulp_src('a') => pulp_dest('b');
 }
 
 package Bar {
     use Pulp;
 
-    use Pulp::Step::Src;
-    use Pulp::Step::Dest;
+    use Pulp::Actions qw/ Src Dest /;
 
-    proof bar => src('a') => dest('b');
+    proof bar => pulp_src('a') => pulp_dest('b');
 }
 
 my $bar = Bar->new;

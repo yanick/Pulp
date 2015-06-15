@@ -10,9 +10,10 @@ with 'Pulp::Role::Queue';
 use Future;
 
 sub add_job {
+    my( $pulp, $job ) = @_;
     my $future = Future->new;
 
-    $future->done( (shift)->() );
+    $future->done( $job->() );
 
     return $future;
 }

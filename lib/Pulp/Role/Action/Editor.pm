@@ -10,7 +10,6 @@ with 'Pulp::Role::Action';
 
 requires 'edit';
 
-use Pulp::Queue;
 use Future;
 
 sub press {
@@ -23,7 +22,7 @@ sub press {
 
             my @nexts = map {
                 my $f = $_;
-                Pulp::Queue::add_job( sub{ $self->edit($f) } )
+                $Pulp::OnThePress->add_job( sub{ $self->edit($f) } )
             } @folios;
 
             return Future->needs_all(@nexts);

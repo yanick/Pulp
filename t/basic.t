@@ -11,11 +11,8 @@ plan tests => 2;
 package Sample {
 
     use Pulp;
-    extends 'Pulp';
 
-    use Pulp::Step::Src;
-    use Pulp::Step::Dest;
-    use Pulp::Step::Rename;
+    use Pulp::Actions qw/ Src Dest Rename /;
 
     use Path::Tiny;
 
@@ -30,9 +27,9 @@ package Sample {
     proof default => sub {
         my $pulp = shift;
 
-        return src('t/corpus/basic/*' ) 
-            => pulp_rename( 't/corpus/basic', '' )
-            => dest( $pulp->dest_dir );
+        return pulp_src('t/corpus/basic/*' ) 
+            => pulp_rename( sub { s#^t/corpus/basic/## } )
+            => pulp_dest( $pulp->dest_dir );
     }
 }
 

@@ -24,6 +24,7 @@ use Moose::Util qw/ apply_all_roles /;
 
 Moose::Exporter->setup_import_methods(
     as_is => [ 'proof' ],
+    also => [ 'Moose' ],
 );
 
 sub init_meta {
@@ -41,6 +42,7 @@ has queue => (
     },
     handles => {
         run_queue => 'run',
+        add_job => 'add_job',
     },
 );
 
@@ -118,6 +120,7 @@ sub press {
     local $Pulp::OnThePress = $self;
 
     my @all = $self->typeset(\@futures, @$steps);
+
     my $final = Future->needs_all( @all);
 
     $self->run_queue;
