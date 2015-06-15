@@ -1,7 +1,11 @@
-package Pulp::Queue;
+package Pulp::Queue::Trivial;
 
 use strict;
 use warnings;
+
+use Moose;
+
+with 'Pulp::Role::Queue';
 
 use Future;
 

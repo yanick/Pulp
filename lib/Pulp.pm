@@ -6,16 +6,16 @@ use warnings;
 use Log::Contextual qw( :log :dlog set_logger );
 use Log::Dispatchouli;
 
-set_logger( Log::Dispatchouli->new({
-   ident     => 'pulp',
-   to_stdout => 1,
-   debug     => 1,
-}) );
+use Log::Contextual::SimpleLogger;
+
+set_logger( Log::Contextual::SimpleLogger->new );
  
  
 log_debug { 'program started' };
 
 use Moose;
+
+use Class::Load qw/ load_class /;
 
 use Moose::Exporter;
 use Moose::Util qw/ apply_all_roles /;
@@ -33,6 +33,16 @@ sub init_meta {
     apply_all_roles( $meta, 'Pulp::Role::ClassProofs' );
     return $meta;
 }
+
+has queue => (
+    does => 'Pulp::Role::Queue',
+    default => sub {
+        load_class('Pulp::Queue::Trivial')->new;
+    },
+    handles => {
+        run_queue => 'run',
+    },
+);
 
 has 'proofs' => (
     is => 'ro',
@@ -98,8 +108,6 @@ sub typeset {
     return $self->typeset( [ $next->press(@$folios) ] => @chain );
 }
 
-use Pulp::Queue;
-
 sub press {
     my( $self, $name, @futures ) = @_;
 
@@ -109,16 +117,16 @@ sub press {
 
     local $Pulp::OnThePress = $self;
 
-        my @all = $self->typeset(\@futures, @$steps);
+    my @all = $self->typeset(\@futures, @$steps);
     my $final = Future->needs_all( @all);
 
-    Pulp::Queue->run;
+    $self->run_queue;
 
     $final->get;
 
     log_info { "$name is off the press" };
 
-    return $final;
+    return $final->get;
 }
 
 1;
