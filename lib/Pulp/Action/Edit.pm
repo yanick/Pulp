@@ -9,19 +9,14 @@ use Moose;
 
 with 'Pulp::Role::Action::Editor';
 
-use Log::Contextual qw( :log :dlog set_logger );
-
-Moose::Exporter->setup_import_methods(
-    as_is => [ 'pulp_edit' ]
-);
-
 has "transform" => (
     is => 'ro',
     required => 1,
 );
 
-sub pulp_edit {
-    return __PACKAGE__->new( transform => @_ );
+sub pulp_new {
+    my( $class, @args ) = @_;
+    __PACKAGE__->new( transform => @args );
 }
 
 

@@ -16,12 +16,10 @@ has dest_dir => (
     is => 'ro',
 );
 
-sub BUILDARGS {
+sub pulp_new {
     my( $class, @args ) = @_;
-
-    @args = ( dest_dir => @args ) if @args == 1;
-
-    return { @args };
+    unshift @args, 'dest_dir' if @args == 1;
+    __PACKAGE__->new( @args );
 }
 
 sub publish {

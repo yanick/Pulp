@@ -2,7 +2,7 @@ use Test::More;
 
 use lib 't/lib';
 
-plan tests => 1;
+plan tests => 3;
 
 use Example1;
 

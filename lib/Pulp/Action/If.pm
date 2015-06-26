@@ -10,12 +10,6 @@ use PerlX::Maybe;
 
 with 'Pulp::Role::Action::Editor';
 
-use Log::Contextual qw( :log :dlog set_logger );
-
-Moose::Exporter->setup_import_methods(
-    as_is => [ 'pulp_if' ]
-);
-
 has "condition" => (
     is => 'ro',
     required => 1,
@@ -31,7 +25,7 @@ has "steps" => (
     },
 );
 
-sub pulp_if {
+sub pulp_new {
     my( $condition, @steps ) = @_;
     return __PACKAGE__->new( condition => $condition, steps => \@steps );
 }

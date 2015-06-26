@@ -11,8 +11,6 @@ use PerlX::Maybe;
 
 with 'Pulp::Role::Action::Editor';
 
-use Log::Contextual qw( :log :dlog );
-
 has "include_paths" => (
     is => 'ro',
 );

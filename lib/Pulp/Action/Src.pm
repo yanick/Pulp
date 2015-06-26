@@ -12,9 +12,8 @@ use Log::Contextual qw( :log :dlog );
 use Path::Tiny;
 use List::AllUtils qw/ uniq /;
 
-sub BUILDARGS {
-    my( $class, @args) = @_;
-
+sub pulp_new {
+    my( $class, @args ) = @_;
     if( @args and ref $args[-1] eq 'HASH' ) {
         my $options = pop @args;
         $options->{sources} = \@args;
@@ -23,8 +22,7 @@ sub BUILDARGS {
     else { 
         @args = ( 'sources', [ @args ] );
     }
-
-    return { @args }
+    __PACKAGE__->new( @args );
 }
 
 has sources => (

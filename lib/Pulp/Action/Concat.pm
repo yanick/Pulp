@@ -8,21 +8,27 @@ use warnings;
 use Moose;
 with 'Pulp::Role::Action::Binder';
 
-Moose::Exporter->setup_import_methods(
-    as_is => [ 'concat' ]
+has filename => (
+    isa => 'Str',
+    is => 'ro',
+    required => 1,
 );
 
-# TODO this should be auto-generated 
-sub concat {
-    return __PACKAGE__->new(@_);
+sub pulp_new {
+    my( $class, @args ) = @_;
+
+    return __PACKAGE__->new(filename => @args);
 }
 
 
 sub coalesce {
     my( $self, @folios ) = @_;
 
+    $DB::single = 1;
+    
+
     Pulp::Folio->new(
-        filename => 'all',
+        filename => $self->filename,
         content => join '', map { $_->content } @folios
     );
 }

@@ -11,10 +11,10 @@ sub _exporter_expand_sub {
     my( $name, $args, $globals ) = @_;
 
     my $module = "Pulp::Action::$args";
-    my $sub_name = lc "pulp_$args";
+    my $sub_name = 'pulp_' . lc $args;
 
     return $sub_name => sub {
-        load_class($module)->new(@_);
+        try_load_class($module)->pulp_new(@_);
     };
 }
 

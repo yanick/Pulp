@@ -15,9 +15,9 @@ has transform => (
     required => 1,
 );
 
-sub BUILDARGS {
-    my ( $class, @args ) = @_;
-    return { transform => shift @args };
+sub pulp_new {
+    my( $class, @args ) = @_;
+    __PACKAGE__->new( 'transform', @args );
 }
 
 

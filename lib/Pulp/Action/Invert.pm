@@ -8,15 +8,6 @@ use warnings;
 use Moose;
 with 'Pulp::Role::Action::Edit';
 
-Moose::Exporter->setup_import_methods(
-    as_is => [ 'invert' ]
-);
-
-# TODO this should be auto-generated 
-sub invert {
-    return __PACKAGE__->new(@_);
-}
-
 
 sub edit {
     my( $self, $folio ) = @_;

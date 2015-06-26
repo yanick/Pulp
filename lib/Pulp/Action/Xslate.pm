@@ -11,12 +11,6 @@ use PerlX::Maybe;
 
 with 'Pulp::Role::Action::Editor';
 
-use Log::Contextual qw( :log :dlog set_logger );
-
-Moose::Exporter->setup_import_methods(
-    as_is => [ 'xslate' ]
-);
-
 has "template_vars" => (
     isa => 'HashRef',
     is => 'ro',

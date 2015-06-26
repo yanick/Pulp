@@ -1,5 +1,7 @@
 package Pulp;
 
+use 5.20.0;
+
 use strict;
 use warnings;
 
@@ -7,6 +9,7 @@ use Log::Contextual qw( :log :dlog set_logger );
 use Log::Dispatchouli;
 
 use Log::Contextual::SimpleLogger;
+use List::Util qw/ pairfirst /;
 
 set_logger( Log::Contextual::SimpleLogger->new );
  
@@ -19,6 +22,10 @@ use Class::Load qw/ load_class /;
 
 use Moose::Exporter;
 use Moose::Util qw/ apply_all_roles /;
+
+use Pulp::Action::Filter;
+
+use experimental 'signatures', 'autoderef';
 
 #with 'Pulp::Role::ClassProofs';
 
@@ -85,6 +92,13 @@ sub proof {
     return $object ? $object->_proof($identifier) : scalar(caller)->class_proof($identifier)
 }
 
+my %typeset_map = (
+    ARRAY => 'typeset_array',
+    HASH  => 'typeset_hash',
+    CODE  => 'typeset_code',
+    Action => 'typeset_action',
+);
+
 sub typeset {
     my( $self, $folios, @chain ) = @_;
 
@@ -93,22 +107,47 @@ sub typeset {
     my $next = shift @chain 
         or return $self->typeset( $folios, @chain );
 
-    if ( ref $next eq 'ARRAY' ) {
+    my $type = blessed $next && $next->DOES('Pulp::Role::Action') ? 'Action' : ref $next;
+
+    my $m = $typeset_map{$type} 
+        or die "don't know how to deal with action of type '$type'\n";
+
+    return $self->$m($next,$folios,@chain);
+
+}
+
+sub typeset_action($self,$next,$promises,@chain) {
+    return $self->typeset( [ $next->press(@$promises) ] => @chain );
+}
+
+sub typeset_code($self,$next,$promises,@chain) {
+    return $self->typeset( $promises, $next->($self), @chain );
+}
+
+sub typeset_hash($self,$next,$promises,@chain) {
+
+        my @paths;
+
+        while( my($regex,$path) = each $next ) {
+            push @paths, [ Pulp::Action::Filter->new( test => sub { $_->filename =~ /$regex/ } ), $path ];
+        }
+
+        my @new = ( \@paths, @chain );
+
+        return $self->typeset( $promises => @new );
+}
+
+sub typeset_array($self,$next,$promises,@chain) {
+        return $self->typeset($promises,@chain) unless @$next;
+
         my @f;
         for my $c ( @$next ) {
-            push @f, $self->typeset( [ map { $_->copy } @$folios ], ref $c eq 'ARRAY' ? @$c : $c );
+            push @f, $self->typeset( $promises, ref $c eq 'ARRAY' ? @$c : $c );
         }
 
         return $self->typeset( \@f => @chain );
-    }
-
-    if ( ref $next eq 'CODE' ) {
-        return $self->typeset( $folios, $next->($self), @chain );
-    }
-
-    use DDP;
-    return $self->typeset( [ $next->press(@$folios) ] => @chain );
 }
+
 
 sub press {
     my( $self, $name, @futures ) = @_;
